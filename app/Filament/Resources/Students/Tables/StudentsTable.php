@@ -92,6 +92,11 @@ class StudentsTable
                         return 'Urutan: ' . ($data['direction'] === 'asc' ? 'Terlama → Terbaru' : 'Terbaru → Terlama');
                     }),
             ])
+            ->filtersTriggerAction(
+                fn(Action $action) => $action
+                    ->button()
+                    ->label('Filter'),
+            )
 
             ->recordActions([
                 EditAction::make(),

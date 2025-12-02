@@ -1,30 +1,33 @@
 <?php
 
-namespace App\Filament\Resources\Students\Schemas;
+namespace App\Filament\Resources\Teachers\Schemas;
 
-use Filament\Forms;
+use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Form;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Wizard;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Schemas\Components\Wizard\Step;
 
-class StudentForm
+
+class TeacherForm
 {
     public static function schema(): array
     {
         return [
             Wizard::make([
 
-                Step::make('Identitas Murid')
+                /*
+                |--------------------------------------------------------------------------
+                | STEP 1 — IDENTITAS GURU
+                |--------------------------------------------------------------------------
+                */
+                Step::make('Identitas Guru')
                     ->schema([
-                        TextInput::make('nisn')->label('NISN')->required(),
-                        TextInput::make('nis')->label('NIS')->required(),
-
-                        TextInput::make('nama_lengkap')
-                            ->label('Nama Lengkap')
-                            ->required(),
+                        TextInput::make('nip')->label('NIP')->required(),
+                        TextInput::make('nama_lengkap')->required(),
 
                         Select::make('jenis_kelamin')
                             ->options([
@@ -34,9 +37,9 @@ class StudentForm
                             ->required(),
 
                         TextInput::make('tempat_lahir'),
-                        DatePicker::make('tanggal_lahir')->required(),
+                        DatePicker::make('tanggal_lahir'),
+
                         Select::make('agama')
-                            ->label('Agama')
                             ->options([
                                 'Islam' => 'Islam',
                                 'Kristen' => 'Kristen',
@@ -45,21 +48,31 @@ class StudentForm
                                 'Buddha' => 'Buddha',
                                 'Konghucu' => 'Konghucu',
                             ])
-                            ->searchable()
+                            ->searchable(),
+
+                        TextInput::make('nik')
+                            ->label('NIK')
                             ->required(),
-                        TextInput::make('nik')->label('NIK'),
                     ])
                     ->columns(2),
 
+                /*
+                |--------------------------------------------------------------------------
+                | STEP 2 — KONTAK & ALAMAT
+                |--------------------------------------------------------------------------
+                */
                 Step::make('Kontak & Alamat')
                     ->schema([
-                        TextInput::make('nomor_telepon')->label('Nomor Telepon'),
-                        TextInput::make('email')->email(),
+                        TextInput::make('nomor_telepon')
+                            ->label('Nomor Telepon')
+                            ->required(),
+                        TextInput::make('email')
+                            ->email()
+                            ->label('Email'),
 
                         Textarea::make('alamat')
                             ->label('Alamat Lengkap')
-                            ->columnSpanFull()
-                            ->required(),
+                            ->columnSpanFull(),
 
                         Select::make('provinsi')
                             ->label('Provinsi')
@@ -107,35 +120,39 @@ class StudentForm
                         TextInput::make('kecamatan')->label('Kecamatan'),
                         TextInput::make('kelurahan')->label('Kelurahan / Desa'),
                         TextInput::make('dusun')->label('Dusun (Opsional)'),
-
                         TextInput::make('kode_pos')->label('Kode Pos'),
-
                     ])
                     ->columns(2),
 
-
-                Step::make('Data Akademik')
+                /*
+                |--------------------------------------------------------------------------
+                | STEP 3 — KEPEGAWAIAN
+                |--------------------------------------------------------------------------
+                */
+                Step::make('Data Kepegawaian')
                     ->schema([
-                        TextInput::make('tahun_masuk')->numeric(),
-                        Select::make('status_aktif')
+
+                        Select::make('jabatan')
+                            ->options([
+                                'Wali Kelas' => 'Wali Kelas',
+                                'Guru Olahraga' => 'Guru Olahraga',
+                                'Guru Mengaji' => 'Guru Mengaji',
+                            ])
+                            ->label('Jabatan / Posisi'),
+
+                        Select::make('status')
                             ->options([
                                 'Aktif' => 'Aktif',
-                                'Lulus'  => 'Lulus',
+                                'Cuti' => 'Cuti',
                                 'Pindah' => 'Pindah',
-                                'Cuti'   => 'Cuti',
+                                'Pensiun' => 'Pensiun',
                             ])
                             ->default('Aktif'),
-                    ]),
 
-                Step::make('Data Orang Tua / Wali')
-                    ->schema([
-                        TextInput::make('nama_ayah')->required(),
-                        TextInput::make('pekerjaan_ayah'),
-                        TextInput::make('nama_ibu')->required(),
-                        TextInput::make('pekerjaan_ibu'),
-                        TextInput::make('nomor_telepon_ortu')->label('Nomor Telepon Orang Tua')->required(),
+                        DatePicker::make('tanggal_masuk')->label('Tanggal Masuk'),
                     ])
                     ->columns(2),
+
 
             ])
                 ->skippable()

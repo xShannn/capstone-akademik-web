@@ -13,12 +13,17 @@ use Filament\Schemas\Components\Form;
 use App\Filament\Resources\Students\Pages\EditStudent;
 use App\Filament\Resources\Students\Pages\ListStudents;
 use App\Filament\Resources\Students\Pages\CreateStudent;
+use UnitEnum;
 
 class StudentResource extends Resource
 {
     protected static ?string $model = Student::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::UserGroup;
+
+   protected static ?string $modelLabel='Murid';
+
+   protected static string|UnitEnum|null $navigationGroup = 'Manajemen Data';
 
     protected static ?string $recordTitleAttribute = 'nama_lengkap';
 
