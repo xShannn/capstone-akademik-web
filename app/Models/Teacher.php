@@ -3,15 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Student extends Authenticatable
+class Teacher extends Authenticatable
 {
-    use HasApiTokens;
+    use HasFactory, Notifiable;
+
+    protected $table = 'teachers';
+
     protected $fillable = [
-        'nisn',
-        'nis',
+        'nip',
         'nama_lengkap',
         'jenis_kelamin',
         'tempat_lahir',
@@ -27,16 +30,20 @@ class Student extends Authenticatable
         'kelurahan',
         'dusun',
         'kode_pos',
-        'tahun_masuk',
-        'status_aktif',
-        'nama_ayah',
-        'pekerjaan_ayah',
-        'nama_ibu',
-        'pekerjaan_ibu',
-        'nomor_telepon_ortu',
+        'jabatan',
+        'mapel',
+        'status',
+        'tanggal_masuk',
+        'password',
+        'class_id',
     ];
 
     protected $hidden = [
-        'password'
+        'password',
     ];
+
+    public function class()
+    {
+        return $this->belongsTo(Classroom::class, 'class_id');
+    }
 }
