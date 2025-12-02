@@ -36,9 +36,22 @@ return [
     */
 
     'guards' => [
+        // Filament admin
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
+        ],
+
+        // Guru login (API)
+        'teacher' => [
+            'driver' => 'sanctum',
+            'provider' => 'teachers',
+        ],
+
+        // Murid login (API)
+        'student' => [
+            'driver' => 'sanctum',
+            'provider' => 'students',
         ],
     ],
 
@@ -63,6 +76,18 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
+        ],
+
+        // Guru
+        'teachers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Teacher::class,
+        ],
+
+        // Murid
+        'students' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Student::class,
         ],
 
         // 'users' => [
