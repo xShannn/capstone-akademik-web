@@ -10,7 +10,6 @@ use Filament\Widgets\AccountWidget;
 use Filament\Auth\Pages\EditProfile;
 use Filament\Navigation\NavigationGroup;
 use Filament\Widgets\FilamentInfoWidget;
-use Filament\Http\Middleware\Authenticate;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -20,6 +19,8 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Filament\Http\Middleware\Authenticate;
+use Filament\Http\Middleware\Authorize;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -35,6 +36,10 @@ class AdminPanelProvider extends PanelProvider
             ->emailVerification()
             ->emailChangeVerification()
             ->profile()
+            ->authMiddleware([
+                Authenticate::class,
+            ])
+
 
             // Side Navbar
             ->sidebarCollapsibleOnDesktop()

@@ -18,6 +18,10 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->string('role')->default('murid');
 
+            // Akun login orang tua
+            $table->foreignId('parent_user_id')->nullable()->constrained('users')->onDelete('cascade');
+
+
             // Relasi ke tabel classrooms
             $table->foreignId('classroom_id')->nullable()->constrained()->onDelete('set null');
 

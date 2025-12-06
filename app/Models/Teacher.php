@@ -7,13 +7,14 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Teacher extends Authenticatable
+class Teacher extends Model
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
 
     protected $table = 'teachers';
 
     protected $fillable = [
+        'user_id',
         'nip',
         'nama_lengkap',
         'jenis_kelamin',
@@ -31,19 +32,31 @@ class Teacher extends Authenticatable
         'dusun',
         'kode_pos',
         'jabatan',
-        'mapel',
         'status',
         'tanggal_masuk',
-        'password',
-        'class_id',
     ];
 
-    protected $hidden = [
-        'password',
-    ];
-
-    public function class()
+    // Relasi ke tabel users
+    public function user()
     {
-        return $this->belongsTo(Classroom::class, 'class_id');
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // Relasi ke classroom (jika guru adalah wali kelas)
+    public function waliKelas()
+    {
+        return $this->hasOne(Classroom::class, 'wali_kelas_id');
+    }
+
+    // Relasi ke classroom (jika guru adalah guru mengaji)
+    public function guruMengaji()
+    {
+        return $this->hasOne(Classroom::class, 'guru_ngaji_id');
+    }
+
+    // Relasi ke classroom (jika guru adalah guru olahraga)
+    public function guruOlahraga()
+    {
+        return $this->hasOne(Classroom::class, 'guru_olahraga_id');
     }
 }

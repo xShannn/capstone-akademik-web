@@ -25,6 +25,8 @@ class StudentResource extends Resource
 
    protected static string|UnitEnum|null $navigationGroup = 'Manajemen Data';
 
+   protected static ?int $navigationSort = 1;
+
     protected static ?string $recordTitleAttribute = 'nama_lengkap';
 
     public static function form(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
@@ -34,13 +36,10 @@ class StudentResource extends Resource
         );
     }
 
-
     public static function table(\Filament\Tables\Table $table): \Filament\Tables\Table
     {
         return \App\Filament\Resources\Students\Tables\StudentsTable::table($table);
     }
-
-
 
     public static function getRelations(): array
     {

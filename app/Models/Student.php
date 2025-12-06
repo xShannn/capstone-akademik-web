@@ -39,4 +39,34 @@ class Student extends Authenticatable
     protected $hidden = [
         'password'
     ];
+
+    public function sppPayments()
+    {
+        return $this->hasMany(SppPayment::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function classroom()
+    {
+        return $this->belongsTo(Classroom::class);
+    }
+
+    // Relationship untuk orang tua (parent)
+    public function parent()
+    {
+        return $this->belongsTo(User::class, 'parent_user_id');
+    }
+
+    // Helper untuk mendapatkan nama kelas lengkap
+    public function getNamaKelasLengkapAttribute(): ?string
+    {
+        if ($this->classroom) {
+            return "Kelas {$this->classroom->tingkat} - {$this->classroom->nama_kelas}";
+        }
+        return null;
+    }
 }

@@ -44,11 +44,53 @@ class Classroom extends Model
         return $this->hasMany(Student::class);
     }
 
+    // Scope untuk filter berdasarkan tingkat
+    public function scopeByTingkat($query, $tingkat)
+    {
+        return $query->where('tingkat', $tingkat);
+    }
+
+    // Accessor untuk nama lengkap kelas
+    public function getNamaLengkapAttribute(): string
+    {
+        return "Kelas {$this->tingkat} - {$this->nama_kelas}";
+    }
+
+    // Scope untuk ordering
+    public function scopeOrderByTingkat($query)
+    {
+        return $query->orderBy('tingkat')->orderBy('nama_kelas');
+    }
     /**
      * Relasi jadwal kelas
      */
     public function schedules()
     {
         return $this->hasMany(Schedule::class);
+    }
+
+    // Method untuk mendapatkan semua guru terkait kelas
+    public function getAllTeachersAttribute()
+    {
+        $teachers = collect();
+
+        if ($this->waliKelas) {
+            $teachers->push(['role' => 'Wali Kelas', 'teacher' => $this->waliKelas]);
+        }
+
+        if ($this->guruNgaji) {
+            $teachers->push(['role' => 'Guru Ngaji', 'teacher' => $this->guruNgaji]);
+        }
+
+        if ($this->guruOlahraga) {
+            $teachers->push(['role' => 'Guru Olahraga', 'teacher' => $this->guruOlahraga]);
+        }
+
+        return $teachers;
+    }
+    // Untuk Filament: Label untuk select options
+    public function getLabelAttribute(): string
+    {
+        return $this->nama_kelas_lengkap;
     }
 }

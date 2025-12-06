@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class ScheduleResource extends Resource
 {
@@ -23,6 +24,10 @@ class ScheduleResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::CalendarDays;
 
     protected static ?string $modelLabel = 'Jadwal';
+
+    protected static string|UnitEnum|null $navigationGroup = 'Akademik';
+
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'subject';
 

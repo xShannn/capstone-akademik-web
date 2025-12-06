@@ -2,142 +2,235 @@
 
 namespace Database\Seeders;
 
-use App\Models\Schedule;
-use App\Models\Classroom;
-use App\Models\Teacher;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ScheduleSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+        // Ambil tahun ajaran aktif
+        $activeYear = DB::table('school_years')->where('is_active', true)->first();
 
-        // Ambil ID semua guru dan putar untuk mengajar di jam berbeda
-        $teachers = Teacher::pluck('id');
-        $teacherIndex = 0;
-
-        // Cek jika tidak ada guru, batalkan seeder untuk menghindari error
-        if ($teachers->isEmpty()) {
-            echo "Peringatan: Tidak ada data guru. Seeder dibatalkan.\n";
+        if (!$activeYear) {
+            $this->command->error('Tidak ada tahun ajaran aktif!');
             return;
         }
 
-        foreach (Classroom::all() as $classroom) {
+        // Ambil semua kelas
+        $classrooms = DB::table('classrooms')->get();
 
-            // Asumsi: Nama kelas selalu diawali dengan angka (misal: '1A', '3B', '6C')
-            $grade = (int) substr($classroom->name, 0, 1);
+        // Data mata pelajaran per tingkat
+        $subjectsByGrade = [
+            '1' => [
+                'Pendidikan Agama Islam',
+                'Pendidikan Pancasila',
+                'Bahasa Indonesia',
+                'Matematika',
+                'Seni Budaya dan Prakarya',
+                'Pendidikan Jasmani, Olahraga dan Kesehatan',
+                'Bahasa Inggris',
+                'Mengaji'
+            ],
+            '2' => [
+                'Pendidikan Agama Islam',
+                'Pendidikan Pancasila',
+                'Bahasa Indonesia',
+                'Matematika',
+                'Seni Budaya dan Prakarya',
+                'Pendidikan Jasmani, Olahraga dan Kesehatan',
+                'Bahasa Inggris',
+                'Mengaji'
+            ],
+            '3' => [
+                'Pendidikan Agama Islam',
+                'Pendidikan Pancasila',
+                'Bahasa Indonesia',
+                'Matematika',
+                'Ilmu Pengetahuan Alam',
+                'Ilmu Pengetahuan Sosial',
+                'Seni Budaya dan Prakarya',
+                'Pendidikan Jasmani, Olahraga dan Kesehatan',
+                'Bahasa Inggris',
+                'Mengaji'
+            ],
+            '4' => [
+                'Pendidikan Agama Islam',
+                'Pendidikan Pancasila',
+                'Bahasa Indonesia',
+                'Matematika',
+                'Ilmu Pengetahuan Alam',
+                'Ilmu Pengetahuan Sosial',
+                'Seni Budaya dan Prakarya',
+                'Pendidikan Jasmani, Olahraga dan Kesehatan',
+                'Bahasa Inggris',
+                'Mengaji'
+            ],
+            '5' => [
+                'Pendidikan Agama Islam',
+                'Pendidikan Pancasila',
+                'Bahasa Indonesia',
+                'Matematika',
+                'Ilmu Pengetahuan Alam',
+                'Ilmu Pengetahuan Sosial',
+                'Seni Budaya dan Prakarya',
+                'Pendidikan Jasmani, Olahraga dan Kesehatan',
+                'Bahasa Inggris',
+                'Mengaji'
+            ],
+            '6' => [
+                'Pendidikan Agama Islam',
+                'Pendidikan Pancasila',
+                'Bahasa Indonesia',
+                'Matematika',
+                'Ilmu Pengetahuan Alam',
+                'Ilmu Pengetahuan Sosial',
+                'Seni Budaya dan Prakarya',
+                'Pendidikan Jasmani, Olahraga dan Kesehatan',
+                'Bahasa Inggris',
+                'Mengaji'
+            ],
+        ];
 
-            // Flags untuk memastikan mata pelajaran khusus hanya 1x seminggu
-            $hasSport = false;
-            $hasMengaji = false;
+        // Hari sekolah
+        $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
 
-            // --- 1. Konfigurasi Jam Berdasarkan Tingkat ---
-            // Tingkat 1-3: Jam pulang lebih cepat (misal jam 12:00)
-            // Tingkat 4-6: Jam pulang lebih lambat (misal jam 14:00)
-            $generalEndHour = ($grade >= 1 && $grade <= 3) ? 12 : 14;
+        // Jam pelajaran (sesuai kurikulum SD)
+        $timeSlots = [
+            ['07:30:00', '08:10:00'], // Jam ke-1
+            ['08:10:00', '08:50:00'], // Jam ke-2
+            ['08:50:00', '09:30:00'], // Jam ke-3
+            ['09:30:00', '10:00:00'], // Istirahat 1
+            ['10:00:00', '10:40:00'], // Jam ke-4
+            ['10:40:00', '11:20:00'], // Jam ke-5
+            ['11:20:00', '12:00:00'], // Jam ke-6
+        ];
 
+        $schedules = [];
+        $scheduleCount = 0;
 
-            foreach ($days as $day) {
+        foreach ($classrooms as $classroom) {
+            $tingkat = $classroom->tingkat;
+            $subjects = $subjectsByGrade[$tingkat] ?? [];
 
-                $endHour = ($day === 'Jumat') ? 11 : $generalEndHour; // Jumat selalu lebih awal
-                $startHour = 7;
+            // Map guru khusus
+            $specialTeachers = [
+                'Mengaji' => $classroom->guru_ngaji_id,
+                'Pendidikan Jasmani, Olahraga dan Kesehatan' => $classroom->guru_olahraga_id,
+            ];
 
-                // Tentukan jadwal dan subjek khusus
-                $sportDay = 'Selasa';
-                $sportHour = 9;
+            // Distribusi mata pelajaran ke hari
+            $subjectIndex = 0;
+            $dayIndex = 0;
 
-                $mengajiDay = 'Kamis';
-                $mengajiHour = 8;
+            while ($subjectIndex < count($subjects) && $dayIndex < count($days)) {
+                $subject = $subjects[$subjectIndex];
 
-                // Loop untuk jam pelajaran dari jam 7:00 hingga jam selesai
-                for ($hour = $startHour; $hour < $endHour; $hour++) {
+                // Tentukan jumlah jam untuk mata pelajaran
+                $hoursNeeded = $this->getHoursForSubject($subject, $tingkat);
 
-                    $subject = 'Pelajaran Umum';
-                    $teacherId = $teachers[$teacherIndex % count($teachers)];
-                    $isSpecialSubject = false; // Flag untuk melacak apakah jam ini sudah diisi mapel khusus
+                // Distribusikan jam ke time slots
+                $timeSlotIndex = 0;
+                $hoursAssigned = 0;
 
-                    // --- 2. Logika Pelajaran Khusus ---
+                while ($hoursAssigned < $hoursNeeded && $timeSlotIndex < count($timeSlots)) {
+                    $day = $days[$dayIndex];
+                    $timeSlot = $timeSlots[$timeSlotIndex];
 
-                    // A. Olahraga (Tingkat 1-6, 1x seminggu)
-                    if (!$hasSport && $day === $sportDay && $hour === $sportHour) {
-                        $subject = 'Olahraga';
-                        $hasSport = true;
-                        $isSpecialSubject = true;
+                    // Cari guru untuk mata pelajaran ini
+                    $teacherId = $specialTeachers[$subject] ?? $classroom->wali_kelas_id;
+
+                    // Skip jika tidak ada guru
+                    if (!$teacherId) {
+                        $timeSlotIndex++;
+                        continue;
                     }
 
-                    // B. Mengaji (Tingkat 1-3 SAJA, 1x seminggu)
-                    elseif ($grade <= 3 && !$hasMengaji && $day === $mengajiDay && $hour === $mengajiHour) {
-                        $subject = 'Mengaji';
-                        $hasMengaji = true;
-                        $isSpecialSubject = true;
-                    }
-
-                    // Jika jam ini sudah diisi mapel khusus, kita lanjutkan loop agar 
-                    // Pelajaran Umum tidak menimpa, atau kita pastikan guru yang mengajar 
-                    // Olahraga/Mengaji adalah guru yang sesuai (jika ada).
-
-                    // Asumsi: teacher_id untuk Pelajaran Umum diganti-ganti, 
-                    // untuk mapel khusus bisa jadi guru yang berbeda, 
-                    // tapi di sini kita menggunakan rotasi umum untuk kesederhanaan.
-
-                    if (!$isSpecialSubject) {
-                        // Ganti guru untuk Pelajaran Umum
-                        $teacherIndex++;
-                    }
-
-                    // --- 3. Buat Jadwal ---
-                    Schedule::create([
+                    $schedules[] = [
+                        'school_year_id' => $activeYear->id,
                         'classroom_id' => $classroom->id,
-                        // teacher_id akan diisi null jika tidak ada guru, tapi 
-                        // karena kita pastikan ada guru di atas, teacherId akan selalu terisi.
                         'teacher_id' => $teacherId,
-                        'day' => $day,
                         'subject' => $subject,
-                        'start_time' => sprintf("%02d:00", $hour),
-                        'end_time' => sprintf("%02d:00", $hour + 1),
-                    ]);
+                        'day' => $day,
+                        'start_time' => $timeSlot[0],
+                        'end_time' => $timeSlot[1],
+                    ];
+
+                    $scheduleCount++;
+                    $hoursAssigned++;
+                    $timeSlotIndex++;
+
+                    // Jika sudah habis time slot di hari ini, pindah ke hari berikutnya
+                    if ($timeSlotIndex >= count($timeSlots)) {
+                        $dayIndex++;
+                        $timeSlotIndex = 0;
+
+                        // Jika sudah habis hari, reset ke hari pertama
+                        if ($dayIndex >= count($days)) {
+                            $dayIndex = 0;
+                        }
+                    }
                 }
+
+                $subjectIndex++;
+
+                // Reset day index setelah selesai satu mata pelajaran
+                $dayIndex = ($dayIndex + 1) % count($days);
             }
         }
+
+        // Insert data ke tabel schedules
+        foreach ($schedules as $schedule) {
+            DB::table('schedules')->insert([
+                ...$schedule,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+        }
+
+        $this->command->info('Seeder schedules berhasil ditambahkan!');
+        $this->command->info('Total: ' . $scheduleCount . ' jadwal');
+        $this->command->info('Tahun ajaran: ' . $activeYear->name . ' ' . $activeYear->semester);
+
+        // Summary per hari
+        $summary = [];
+        foreach ($days as $day) {
+            $count = count(array_filter($schedules, fn($s) => $s['day'] === $day));
+            $summary[] = "$day: $count jadwal";
+        }
+
+        $this->command->info('Distribusi hari: ' . implode(', ', $summary));
+    }
+
+    /**
+     * Tentukan jumlah jam untuk mata pelajaran berdasarkan tingkat
+     */
+    private function getHoursForSubject(string $subject, string $tingkat): int
+    {
+        $baseHours = [
+            'Pendidikan Agama Islam' => 3,
+            'Pendidikan Pancasila' => 2,
+            'Bahasa Indonesia' => 6,
+            'Matematika' => 5,
+            'Ilmu Pengetahuan Alam' => 3,
+            'Ilmu Pengetahuan Sosial' => 3,
+            'Seni Budaya dan Prakarya' => 4,
+            'Pendidikan Jasmani, Olahraga dan Kesehatan' => 3,
+            'Bahasa Inggris' => 2,
+            'Mengaji' => 2,
+        ];
+
+        // Penyesuaian untuk tingkat 1-2
+        if (in_array($tingkat, ['1', '2'])) {
+            if ($subject === 'Bahasa Indonesia') return 8;
+            if ($subject === 'Matematika') return 6;
+            if ($subject === 'Pendidikan Pancasila') return 3;
+        }
+
+        return $baseHours[$subject] ?? 2;
     }
 }
-
-// namespace Database\Seeders;
-
-// use App\Models\Schedule;
-// use App\Models\Classroom;
-// use App\Models\Teacher;
-// use Illuminate\Database\Seeder;
-
-// class ScheduleSeeder extends Seeder
-// {
-//     public function run(): void
-//     {
-//         $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
-
-//         foreach (Classroom::all() as $classroom) {
-
-//             foreach ($days as $day) {
-
-//                 $startHour = 7;
-//                 $endHour = $day === 'Jumat' ? 11 : 14;
-
-//                 for ($hour = $startHour; $hour < $endHour; $hour++) {
-
-//                     // Dapatkan wali kelas
-//                     $teacher = Teacher::find($classroom->wali_kelas_id);
-
-//                     Schedule::create([
-//                         'classroom_id' => $classroom->id,
-//                         'teacher_id' => $teacher->id ?? null,
-//                         'day' => $day,
-//                         'start_time' => sprintf("%02d:00", $hour),
-//                         'end_time' => sprintf("%02d:00", $hour + 1),
-//                         'subject' => 'Pelajaran Umum',
-//                     ]);
-//                 }
-//             }
-//         }
-//     }
-// }
