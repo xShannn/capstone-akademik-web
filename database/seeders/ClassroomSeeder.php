@@ -13,91 +13,127 @@ class ClassroomSeeder extends Seeder
      */
     public function run(): void
     {
-        // Ambil data guru dari database
-        $teachers = DB::table('teachers')->get();
+        $this->command->info('Memulai ClassroomSeeder...');
 
-        // Mapping guru berdasarkan jabatan
-        $waliKelas = [];
-        $guruNgaji = [];
-        $guruOlahraga = [];
+        // 1. AMBIL SEMUA GURU
+        $allTeachers = DB::table('teachers')->get();
 
-        foreach ($teachers as $teacher) {
-            $jabatan = $teacher->jabatan;
+        // 2. KELOMPOKKAN GURU BERDASARKAN JABATAN
+        $waliKelasGurus = $allTeachers->where('jabatan', 'Wali Kelas')->values();
+        $olahragaGurus = $allTeachers->where('jabatan', 'Guru Olahraga')->values();
+        $mengajiGurus = $allTeachers->where('jabatan', 'Guru Mengaji')->values();
 
-            if (str_contains($jabatan, 'Wali Kelas')) {
-                // Ekstrak kelas dari jabatan (contoh: "Wali Kelas 1A" -> "1A")
-                preg_match('/Wali Kelas (\d+[A-C])/', $jabatan, $matches);
-                if (isset($matches[1])) {
-                    $waliKelas[$matches[1]] = $teacher->id;
-                }
-            } elseif (str_contains($jabatan, 'Guru Mengaji')) {
-                // Ekstrak kelas dari jabatan (contoh: "Guru Mengaji (Kelas 1)" -> "1")
-                preg_match('/Kelas (\d+)/', $jabatan, $matches);
-                if (isset($matches[1])) {
-                    $guruNgaji[$matches[1]] = $teacher->id;
-                }
-            } elseif (str_contains($jabatan, 'Guru Olahraga')) {
-                // Ekstrak kelas dari jabatan (contoh: "Guru Olahraga (Kelas 1)" -> "1")
-                preg_match('/Kelas (\d+)/', $jabatan, $matches);
-                if (isset($matches[1])) {
-                    $guruOlahraga[$matches[1]] = $teacher->id;
-                }
-            }
+        $this->command->info("Jumlah Wali Kelas: " . count($waliKelasGurus));
+        $this->command->info("Jumlah Guru Olahraga: " . count($olahragaGurus));
+        $this->command->info("Jumlah Guru Mengaji: " . count($mengajiGurus));
+
+        // VALIDASI: Cukupkah guru?
+        if (count($waliKelasGurus) < 18) {
+            $this->command->error("ERROR: Butuh 18 Wali Kelas, hanya tersedia " . count($waliKelasGurus));
+            $this->command->info("Silakan tambah guru di TeacherSeeder!");
+            return;
         }
 
-        // Data kelas
+        if (count($olahragaGurus) < 6) {
+            $this->command->error("ERROR: Butuh 6 Guru Olahraga, hanya tersedia " . count($olahragaGurus));
+            $this->command->info("Silakan tambah guru di TeacherSeeder!");
+            return;
+        }
+
+        if (count($mengajiGurus) < 3) {
+            $this->command->error("ERROR: Butuh 3 Guru Mengaji, hanya tersedia " . count($mengajiGurus));
+            $this->command->info("Silakan tambah guru di TeacherSeeder!");
+            return;
+        }
+
+        // 3. HAPUS DATA LAMA (jika ada) PAKAI DELETE(), BUKAN TRUNCATE()
+        // Cek dulu apakah tabel sudah ada data
+        $existingCount = DB::table('classrooms')->count();
+        if ($existingCount > 0) {
+            $this->command->info("Menghapus {$existingCount} data kelas lama...");
+
+            // OPTION A: Delete semua (aman untuk foreign key)
+            DB::table('classrooms')->delete();
+
+            // OPTION B: Reset auto increment
+            // DB::statement('ALTER TABLE classrooms AUTO_INCREMENT = 1');
+        }
+
+        // 4. BUAT DATA KELAS BARU
         $classrooms = [];
         $tingkats = ['1', '2', '3', '4', '5', '6'];
         $kelasHuruf = ['A', 'B', 'C'];
+
+        $waliIndex = 0;
 
         foreach ($tingkats as $tingkat) {
             foreach ($kelasHuruf as $huruf) {
                 $namaKelas = $tingkat . $huruf;
                 $tingkatAngka = (int)$tingkat;
 
-                // Cari guru berdasarkan mapping
-                $waliKelasId = $waliKelas[$namaKelas] ?? null;
+                // === ASSIGN WALI KELAS (1 guru per kelas) ===
+                $waliKelasId = $waliKelasGurus[$waliIndex]->id ?? null;
+                $waliIndex++;
 
-                // Untuk guru ngaji: kelas 1-3 ada guru khusus, 4-6 pakai guru ngaji kelas 3
+                // === ASSIGN GURU OLAHRAGA (1 guru per tingkat) ===
+                $olahragaIndex = ($tingkatAngka - 1) % 6; // 0-5
+                $guruOlahragaId = $olahragaGurus[$olahragaIndex]->id ?? null;
+
+                // === ASSIGN GURU MENGAJI (HANYA KELAS 1-3) ===
+                $guruNgajiId = null;
                 if ($tingkatAngka <= 3) {
-                    $guruNgajiId = $guruNgaji[$tingkat] ?? null;
-                } else {
-                    $guruNgajiId = $guruNgaji['3'] ?? null; // Kelas 4-6 pakai guru ngaji kelas 3
+                    $ngajiIndex = ($tingkatAngka - 1) % 3; // 0-2
+                    $guruNgajiId = $mengajiGurus[$ngajiIndex]->id ?? null;
                 }
 
-                // Cari guru olahraga berdasarkan tingkat
-                $guruOlahragaId = $guruOlahraga[$tingkat] ?? null;
+                // Cek apakah kelas ini sudah ada
+                $existingClassroom = DB::table('classrooms')
+                    ->where('nama_kelas', $namaKelas)
+                    ->first();
 
-                $classrooms[] = [
-                    'nama_kelas' => $namaKelas,
-                    'tingkat' => $tingkat,
-                    'wali_kelas_id' => $waliKelasId,
-                    'guru_ngaji_id' => $guruNgajiId,
-                    'guru_olahraga_id' => $guruOlahragaId,
-                ];
+                if ($existingClassroom) {
+                    // Update existing
+                    DB::table('classrooms')
+                        ->where('id', $existingClassroom->id)
+                        ->update([
+                            'wali_kelas_id' => $waliKelasId,
+                            'guru_ngaji_id' => $guruNgajiId,
+                            'guru_olahraga_id' => $guruOlahragaId,
+                            'updated_at' => Carbon::now(),
+                        ]);
+                } else {
+                    // Insert baru
+                    $classrooms[] = [
+                        'nama_kelas' => $namaKelas,
+                        'tingkat' => $tingkat,
+                        'wali_kelas_id' => $waliKelasId,
+                        'guru_ngaji_id' => $guruNgajiId,
+                        'guru_olahraga_id' => $guruOlahragaId,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ];
+                }
+
+                $this->command->info("Kelas {$namaKelas}: Wali={$waliKelasId}, Ngaji={$guruNgajiId}, Olahraga={$guruOlahragaId}");
             }
         }
 
-        // Insert data ke tabel classrooms
-        foreach ($classrooms as $classroom) {
-            DB::table('classrooms')->insert([
-                ...$classroom,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ]);
+        // Insert data baru (jika ada)
+        if (!empty($classrooms)) {
+            DB::table('classrooms')->insert($classrooms);
         }
 
         $this->command->info('Seeder classrooms berhasil ditambahkan!');
-        $this->command->info('Total: ' . count($classrooms) . ' kelas');
-        $this->command->info('Distribusi: 6 tingkat × 3 kelas = 18 kelas');
 
-        // Tampilkan summary
-        $kelasDenganWali = count(array_filter($classrooms, fn($c) => !is_null($c['wali_kelas_id'])));
-        $kelasDenganNgaji = count(array_filter($classrooms, fn($c) => !is_null($c['guru_ngaji_id'])));
-        $kelasDenganOlahraga = count(array_filter($classrooms, fn($c) => !is_null($c['guru_olahraga_id'])));
+        // 5. SUMMARY
+        $totalKelas = DB::table('classrooms')->count();
+        $kelasDenganWali = DB::table('classrooms')->whereNotNull('wali_kelas_id')->count();
+        $kelasDenganNgaji = DB::table('classrooms')->whereNotNull('guru_ngaji_id')->count();
+        $kelasDenganOlahraga = DB::table('classrooms')->whereNotNull('guru_olahraga_id')->count();
 
-        $this->command->info("Kelas dengan wali kelas: {$kelasDenganWali}/18");
-        $this->command->info("Kelas dengan guru ngaji: {$kelasDenganNgaji}/18");
-        $this->command->info("Kelas dengan guru olahraga: {$kelasDenganOlahraga}/18");
+        $this->command->info("Total kelas: {$totalKelas}");
+        $this->command->info("Kelas dengan wali kelas: {$kelasDenganWali}/{$totalKelas}");
+        $this->command->info("Kelas dengan guru ngaji: {$kelasDenganNgaji}/{$totalKelas} (hanya kelas 1-3)");
+        $this->command->info("Kelas dengan guru olahraga: {$kelasDenganOlahraga}/{$totalKelas}");
     }
 }

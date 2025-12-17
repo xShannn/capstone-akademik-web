@@ -24,131 +24,152 @@ class ScheduleSeeder extends Seeder
         // Ambil semua kelas
         $classrooms = DB::table('classrooms')->get();
 
-        // Data mata pelajaran per tingkat
+        // Data mata pelajaran per tingkat dengan distribusi jam
+        // PERBAIKAN: Hapus 'Mengaji' dari kelas 4-6
         $subjectsByGrade = [
             '1' => [
-                'Pendidikan Agama Islam',
-                'Pendidikan Pancasila',
-                'Bahasa Indonesia',
-                'Matematika',
-                'Seni Budaya dan Prakarya',
-                'Pendidikan Jasmani, Olahraga dan Kesehatan',
-                'Bahasa Inggris',
-                'Mengaji'
+                ['subject' => 'Pendidikan Agama Islam', 'hours' => 3],
+                ['subject' => 'Pendidikan Pancasila', 'hours' => 3],
+                ['subject' => 'Bahasa Indonesia', 'hours' => 8],
+                ['subject' => 'Matematika', 'hours' => 6],
+                ['subject' => 'Seni Budaya dan Prakarya', 'hours' => 4],
+                ['subject' => 'Pendidikan Jasmani, Olahraga dan Kesehatan', 'hours' => 3, 'special' => 'olahraga'],
+                ['subject' => 'Bahasa Inggris', 'hours' => 2],
+                ['subject' => 'Mengaji', 'hours' => 2, 'special' => 'ngaji'],
             ],
             '2' => [
-                'Pendidikan Agama Islam',
-                'Pendidikan Pancasila',
-                'Bahasa Indonesia',
-                'Matematika',
-                'Seni Budaya dan Prakarya',
-                'Pendidikan Jasmani, Olahraga dan Kesehatan',
-                'Bahasa Inggris',
-                'Mengaji'
+                ['subject' => 'Pendidikan Agama Islam', 'hours' => 3],
+                ['subject' => 'Pendidikan Pancasila', 'hours' => 3],
+                ['subject' => 'Bahasa Indonesia', 'hours' => 8],
+                ['subject' => 'Matematika', 'hours' => 6],
+                ['subject' => 'Seni Budaya dan Prakarya', 'hours' => 4],
+                ['subject' => 'Pendidikan Jasmani, Olahraga dan Kesehatan', 'hours' => 3, 'special' => 'olahraga'],
+                ['subject' => 'Bahasa Inggris', 'hours' => 2],
+                ['subject' => 'Mengaji', 'hours' => 2, 'special' => 'ngaji'],
             ],
             '3' => [
-                'Pendidikan Agama Islam',
-                'Pendidikan Pancasila',
-                'Bahasa Indonesia',
-                'Matematika',
-                'Ilmu Pengetahuan Alam',
-                'Ilmu Pengetahuan Sosial',
-                'Seni Budaya dan Prakarya',
-                'Pendidikan Jasmani, Olahraga dan Kesehatan',
-                'Bahasa Inggris',
-                'Mengaji'
+                ['subject' => 'Pendidikan Agama Islam', 'hours' => 3],
+                ['subject' => 'Pendidikan Pancasila', 'hours' => 2],
+                ['subject' => 'Bahasa Indonesia', 'hours' => 6],
+                ['subject' => 'Matematika', 'hours' => 5],
+                ['subject' => 'Ilmu Pengetahuan Alam', 'hours' => 3],
+                ['subject' => 'Ilmu Pengetahuan Sosial', 'hours' => 3],
+                ['subject' => 'Seni Budaya dan Prakarya', 'hours' => 4],
+                ['subject' => 'Pendidikan Jasmani, Olahraga dan Kesehatan', 'hours' => 3, 'special' => 'olahraga'],
+                ['subject' => 'Bahasa Inggris', 'hours' => 2],
+                ['subject' => 'Mengaji', 'hours' => 2, 'special' => 'ngaji'],
             ],
+            // KELAS 4-6: TIDAK ADA MENGAJI
             '4' => [
-                'Pendidikan Agama Islam',
-                'Pendidikan Pancasila',
-                'Bahasa Indonesia',
-                'Matematika',
-                'Ilmu Pengetahuan Alam',
-                'Ilmu Pengetahuan Sosial',
-                'Seni Budaya dan Prakarya',
-                'Pendidikan Jasmani, Olahraga dan Kesehatan',
-                'Bahasa Inggris',
-                'Mengaji'
+                ['subject' => 'Pendidikan Agama Islam', 'hours' => 3],
+                ['subject' => 'Pendidikan Pancasila', 'hours' => 2],
+                ['subject' => 'Bahasa Indonesia', 'hours' => 6],
+                ['subject' => 'Matematika', 'hours' => 5],
+                ['subject' => 'Ilmu Pengetahuan Alam', 'hours' => 3],
+                ['subject' => 'Ilmu Pengetahuan Sosial', 'hours' => 3],
+                ['subject' => 'Seni Budaya dan Prakarya', 'hours' => 4],
+                ['subject' => 'Pendidikan Jasmani, Olahraga dan Kesehatan', 'hours' => 3, 'special' => 'olahraga'],
+                ['subject' => 'Bahasa Inggris', 'hours' => 2],
+                // TIDAK ADA 'Mengaji'
             ],
             '5' => [
-                'Pendidikan Agama Islam',
-                'Pendidikan Pancasila',
-                'Bahasa Indonesia',
-                'Matematika',
-                'Ilmu Pengetahuan Alam',
-                'Ilmu Pengetahuan Sosial',
-                'Seni Budaya dan Prakarya',
-                'Pendidikan Jasmani, Olahraga dan Kesehatan',
-                'Bahasa Inggris',
-                'Mengaji'
+                ['subject' => 'Pendidikan Agama Islam', 'hours' => 3],
+                ['subject' => 'Pendidikan Pancasila', 'hours' => 2],
+                ['subject' => 'Bahasa Indonesia', 'hours' => 6],
+                ['subject' => 'Matematika', 'hours' => 5],
+                ['subject' => 'Ilmu Pengetahuan Alam', 'hours' => 3],
+                ['subject' => 'Ilmu Pengetahuan Sosial', 'hours' => 3],
+                ['subject' => 'Seni Budaya dan Prakarya', 'hours' => 4],
+                ['subject' => 'Pendidikan Jasmani, Olahraga dan Kesehatan', 'hours' => 3, 'special' => 'olahraga'],
+                ['subject' => 'Bahasa Inggris', 'hours' => 2],
+                // TIDAK ADA 'Mengaji'
             ],
             '6' => [
-                'Pendidikan Agama Islam',
-                'Pendidikan Pancasila',
-                'Bahasa Indonesia',
-                'Matematika',
-                'Ilmu Pengetahuan Alam',
-                'Ilmu Pengetahuan Sosial',
-                'Seni Budaya dan Prakarya',
-                'Pendidikan Jasmani, Olahraga dan Kesehatan',
-                'Bahasa Inggris',
-                'Mengaji'
+                ['subject' => 'Pendidikan Agama Islam', 'hours' => 3],
+                ['subject' => 'Pendidikan Pancasila', 'hours' => 2],
+                ['subject' => 'Bahasa Indonesia', 'hours' => 6],
+                ['subject' => 'Matematika', 'hours' => 5],
+                ['subject' => 'Ilmu Pengetahuan Alam', 'hours' => 3],
+                ['subject' => 'Ilmu Pengetahuan Sosial', 'hours' => 3],
+                ['subject' => 'Seni Budaya dan Prakarya', 'hours' => 4],
+                ['subject' => 'Pendidikan Jasmani, Olahraga dan Kesehatan', 'hours' => 3, 'special' => 'olahraga'],
+                ['subject' => 'Bahasa Inggris', 'hours' => 2],
+                // TIDAK ADA 'Mengaji'
             ],
         ];
 
         // Hari sekolah
         $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
 
-        // Jam pelajaran (sesuai kurikulum SD)
+        // Jam pelajaran (40 menit per jam)
         $timeSlots = [
             ['07:30:00', '08:10:00'], // Jam ke-1
             ['08:10:00', '08:50:00'], // Jam ke-2
             ['08:50:00', '09:30:00'], // Jam ke-3
-            ['09:30:00', '10:00:00'], // Istirahat 1
+            ['09:30:00', '10:00:00'], // Istirahat 1 (30 menit)
             ['10:00:00', '10:40:00'], // Jam ke-4
             ['10:40:00', '11:20:00'], // Jam ke-5
             ['11:20:00', '12:00:00'], // Jam ke-6
+            ['12:00:00', '12:40:00'], // Jam ke-7 (untuk kelas 4-6)
+            ['12:40:00', '13:20:00'], // Jam ke-8 (untuk kelas 4-6)
         ];
 
-        $schedules = [];
-        $scheduleCount = 0;
+        // Hapus jadwal lama untuk tahun ajaran ini
+        DB::table('schedules')->where('school_year_id', $activeYear->id)->delete();
+
+        $totalSchedules = 0;
 
         foreach ($classrooms as $classroom) {
             $tingkat = $classroom->tingkat;
-            $subjects = $subjectsByGrade[$tingkat] ?? [];
+            $gradeSubjects = $subjectsByGrade[$tingkat] ?? [];
 
-            // Map guru khusus
-            $specialTeachers = [
-                'Mengaji' => $classroom->guru_ngaji_id,
-                'Pendidikan Jasmani, Olahraga dan Kesehatan' => $classroom->guru_olahraga_id,
-            ];
+            // Validasi: Kelas harus punya wali kelas
+            if (!$classroom->wali_kelas_id) {
+                $this->command->warn("Kelas {$classroom->nama_kelas} tidak memiliki wali kelas, skip...");
+                continue;
+            }
 
-            // Distribusi mata pelajaran ke hari
-            $subjectIndex = 0;
-            $dayIndex = 0;
+            $schedules = [];
+            $currentDayIndex = 0;
+            $currentTimeSlotIndex = 0;
 
-            while ($subjectIndex < count($subjects) && $dayIndex < count($days)) {
-                $subject = $subjects[$subjectIndex];
+            // Total jam per minggu untuk kelas ini
+            $totalHours = array_sum(array_column($gradeSubjects, 'hours'));
 
-                // Tentukan jumlah jam untuk mata pelajaran
-                $hoursNeeded = $this->getHoursForSubject($subject, $tingkat);
+            $this->command->info("Membuat jadwal kelas {$classroom->nama_kelas} ({$totalHours} jam/minggu)");
 
-                // Distribusikan jam ke time slots
-                $timeSlotIndex = 0;
-                $hoursAssigned = 0;
+            foreach ($gradeSubjects as $subjectData) {
+                $subject = $subjectData['subject'];
+                $hoursNeeded = $subjectData['hours'];
+                $specialType = $subjectData['special'] ?? null;
 
-                while ($hoursAssigned < $hoursNeeded && $timeSlotIndex < count($timeSlots)) {
-                    $day = $days[$dayIndex];
-                    $timeSlot = $timeSlots[$timeSlotIndex];
+                // Tentukan guru
+                if ($specialType === 'olahraga') {
+                    $teacherId = $classroom->guru_olahraga_id;
+                } elseif ($specialType === 'ngaji') {
+                    $teacherId = $classroom->guru_ngaji_id;
+                } else {
+                    $teacherId = $classroom->wali_kelas_id; // Mapel reguler
+                }
 
-                    // Cari guru untuk mata pelajaran ini
-                    $teacherId = $specialTeachers[$subject] ?? $classroom->wali_kelas_id;
-
-                    // Skip jika tidak ada guru
-                    if (!$teacherId) {
-                        $timeSlotIndex++;
-                        continue;
+                // Skip jika tidak ada guru (khusus untuk mengaji kelas 4-6)
+                if (!$teacherId) {
+                    if ($specialType === 'ngaji') {
+                        $this->command->info("  Mapel Mengaji diabaikan (tidak ada untuk kelas {$tingkat})");
                     }
+                    continue;
+                }
+
+                // Distribusikan jam untuk mapel ini
+                for ($hour = 0; $hour < $hoursNeeded; $hour++) {
+                    // Jika time slot habis, pindah ke hari berikutnya
+                    if ($currentTimeSlotIndex >= count($timeSlots)) {
+                        $currentTimeSlotIndex = 0;
+                        $currentDayIndex = ($currentDayIndex + 1) % count($days);
+                    }
+
+                    $day = $days[$currentDayIndex];
+                    $timeSlot = $timeSlots[$currentTimeSlotIndex];
 
                     $schedules[] = [
                         'school_year_id' => $activeYear->id,
@@ -158,79 +179,72 @@ class ScheduleSeeder extends Seeder
                         'day' => $day,
                         'start_time' => $timeSlot[0],
                         'end_time' => $timeSlot[1],
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
                     ];
 
-                    $scheduleCount++;
-                    $hoursAssigned++;
-                    $timeSlotIndex++;
-
-                    // Jika sudah habis time slot di hari ini, pindah ke hari berikutnya
-                    if ($timeSlotIndex >= count($timeSlots)) {
-                        $dayIndex++;
-                        $timeSlotIndex = 0;
-
-                        // Jika sudah habis hari, reset ke hari pertama
-                        if ($dayIndex >= count($days)) {
-                            $dayIndex = 0;
-                        }
-                    }
+                    $currentTimeSlotIndex++;
                 }
+            }
 
-                $subjectIndex++;
-
-                // Reset day index setelah selesai satu mata pelajaran
-                $dayIndex = ($dayIndex + 1) % count($days);
+            // Insert jadwal untuk kelas ini
+            if (!empty($schedules)) {
+                DB::table('schedules')->insert($schedules);
+                $totalSchedules += count($schedules);
+                $this->command->info("  Selesai: " . count($schedules) . " jadwal");
             }
         }
 
-        // Insert data ke tabel schedules
-        foreach ($schedules as $schedule) {
-            DB::table('schedules')->insert([
-                ...$schedule,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ]);
-        }
-
+        $this->command->info('========================================');
         $this->command->info('Seeder schedules berhasil ditambahkan!');
-        $this->command->info('Total: ' . $scheduleCount . ' jadwal');
+        $this->command->info('Total: ' . $totalSchedules . ' jadwal');
         $this->command->info('Tahun ajaran: ' . $activeYear->name . ' ' . $activeYear->semester);
 
         // Summary per hari
-        $summary = [];
+        $this->command->info('Distribusi per hari:');
         foreach ($days as $day) {
-            $count = count(array_filter($schedules, fn($s) => $s['day'] === $day));
-            $summary[] = "$day: $count jadwal";
+            $count = DB::table('schedules')
+                ->where('school_year_id', $activeYear->id)
+                ->where('day', $day)
+                ->count();
+            $this->command->info("  {$day}: {$count} jadwal");
         }
 
-        $this->command->info('Distribusi hari: ' . implode(', ', $summary));
-    }
+        // Summary per mapel khusus
+        $this->command->info('Distribusi mapel khusus:');
+        $olahragaCount = DB::table('schedules')
+            ->where('school_year_id', $activeYear->id)
+            ->where('subject', 'Pendidikan Jasmani, Olahraga dan Kesehatan')
+            ->count();
+        $this->command->info("  Olahraga: {$olahragaCount} jadwal");
 
-    /**
-     * Tentukan jumlah jam untuk mata pelajaran berdasarkan tingkat
-     */
-    private function getHoursForSubject(string $subject, string $tingkat): int
-    {
-        $baseHours = [
-            'Pendidikan Agama Islam' => 3,
-            'Pendidikan Pancasila' => 2,
-            'Bahasa Indonesia' => 6,
-            'Matematika' => 5,
-            'Ilmu Pengetahuan Alam' => 3,
-            'Ilmu Pengetahuan Sosial' => 3,
-            'Seni Budaya dan Prakarya' => 4,
-            'Pendidikan Jasmani, Olahraga dan Kesehatan' => 3,
-            'Bahasa Inggris' => 2,
-            'Mengaji' => 2,
-        ];
+        $ngajiCount = DB::table('schedules')
+            ->where('school_year_id', $activeYear->id)
+            ->where('subject', 'Mengaji')
+            ->count();
+        $this->command->info("  Mengaji: {$ngajiCount} jadwal (hanya kelas 1-3)");
 
-        // Penyesuaian untuk tingkat 1-2
-        if (in_array($tingkat, ['1', '2'])) {
-            if ($subject === 'Bahasa Indonesia') return 8;
-            if ($subject === 'Matematika') return 6;
-            if ($subject === 'Pendidikan Pancasila') return 3;
-        }
+        // Summary per guru type
+        $this->command->info('Jadwal berdasarkan jenis guru:');
+        $waliKelasCount = DB::table('schedules')
+            ->join('teachers', 'schedules.teacher_id', '=', 'teachers.id')
+            ->where('schedules.school_year_id', $activeYear->id)
+            ->where('teachers.jabatan', 'Wali Kelas')
+            ->count();
+        $this->command->info("  Wali Kelas: {$waliKelasCount} jadwal");
 
-        return $baseHours[$subject] ?? 2;
+        $guruOlahragaCount = DB::table('schedules')
+            ->join('teachers', 'schedules.teacher_id', '=', 'teachers.id')
+            ->where('schedules.school_year_id', $activeYear->id)
+            ->where('teachers.jabatan', 'Guru Olahraga')
+            ->count();
+        $this->command->info("  Guru Olahraga: {$guruOlahragaCount} jadwal");
+
+        $guruNgajiCount = DB::table('schedules')
+            ->join('teachers', 'schedules.teacher_id', '=', 'teachers.id')
+            ->where('schedules.school_year_id', $activeYear->id)
+            ->where('teachers.jabatan', 'Guru Mengaji')
+            ->count();
+        $this->command->info("  Guru Mengaji: {$guruNgajiCount} jadwal");
     }
 }

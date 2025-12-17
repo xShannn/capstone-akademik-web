@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Classrooms\Schemas;
 
+use App\Models\Teacher;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -44,7 +45,11 @@ class ClassroomsForm
                     ->schema([
                         Select::make('wali_kelas_id')
                             ->label('Wali Kelas')
-                            ->relationship('waliKelas', 'nama_lengkap')
+                            ->options(
+                                Teacher::query()
+                                    ->where('jabatan', 'Wali Kelas')
+                                    ->pluck('nama_lengkap', 'id')
+                            )
                             ->searchable()
                             ->preload()
                             ->placeholder('Pilih wali kelas')
@@ -52,7 +57,11 @@ class ClassroomsForm
 
                         Select::make('guru_ngaji_id')
                             ->label('Guru Ngaji')
-                            ->relationship('guruNgaji', 'nama_lengkap')
+                            ->options(
+                                Teacher::query()
+                                    ->where('jabatan', 'Guru Mengaji')
+                                    ->pluck('nama_lengkap', 'id')
+                            )
                             ->searchable()
                             ->preload()
                             ->placeholder('Pilih guru ngaji')
@@ -60,13 +69,17 @@ class ClassroomsForm
 
                         Select::make('guru_olahraga_id')
                             ->label('Guru Olahraga')
-                            ->relationship('guruOlahraga', 'nama_lengkap')
+                            ->options(
+                                Teacher::query()
+                                    ->where('jabatan', 'Guru Olahraga')
+                                    ->pluck('nama_lengkap', 'id')
+                            )
                             ->searchable()
                             ->preload()
                             ->placeholder('Pilih guru olahraga')
                             ->helperText('Guru yang mengajar pelajaran olahraga'),
                     ])
-                    ->columns(3),
+                    ->columns(3)
             ]);
     }
 }

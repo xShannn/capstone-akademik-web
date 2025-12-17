@@ -10,12 +10,12 @@ use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 // use Filament\Schemas\Components\Form;
+use Filament\Schemas\Components\Form;
 use App\Filament\Resources\Teachers\Pages\EditTeacher;
 use App\Filament\Resources\Teachers\Pages\ListTeachers;
 use App\Filament\Resources\Teachers\Pages\CreateTeacher;
-use App\Filament\Resources\Teachers\Schemas\TeacherForm;
+use App\Filament\Resources\Teachers\Schemas\TeachersForm;
 use App\Filament\Resources\Teachers\Tables\TeachersTable;
-use Filament\Schemas\Components\Form;
 
 class TeacherResource extends Resource
 {
@@ -32,7 +32,7 @@ class TeacherResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->schema(
-            TeacherForm::schema()
+            TeachersForm::schema()
         );
     }
 

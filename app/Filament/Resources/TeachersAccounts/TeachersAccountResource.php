@@ -30,6 +30,8 @@ class TeachersAccountResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Manajemen Akun';
 
+    protected static ?int $navigationSort = 4;
+
     protected static ?string $navigationLabel = 'Akun Guru';
 
     protected static ?string $recordTitleAttribute = 'nama_lengkap';

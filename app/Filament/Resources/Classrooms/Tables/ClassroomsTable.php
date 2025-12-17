@@ -69,7 +69,6 @@ class ClassroomsTable
                         5 => 'Kelas 5',
                         6 => 'Kelas 6',
                     ])
-                    ->multiple()
                     ->searchable(),
 
                 SelectFilter::make('wali_kelas_id')

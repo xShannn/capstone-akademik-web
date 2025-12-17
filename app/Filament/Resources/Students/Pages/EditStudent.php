@@ -17,17 +17,9 @@ class EditStudent extends EditRecord
         ];
     }
 
-    // pindah ke halaman index saat klik save change
-    protected function getRedirectUrl(): string
-    {
-        return static::getResource()::getUrl('index');
-    }
-
     // custom pesan alert
-    protected function getSavedNotification(): ?\Filament\Notifications\Notification
+    protected function getSavedNotificationTitle(): ?string
     {
-        return \Filament\Notifications\Notification::make()
-            ->title('Perubahan tersimpan')
-            ->success();
+        return "Data '{$this->record->name}' berhasil diperbarui";
     }
 }

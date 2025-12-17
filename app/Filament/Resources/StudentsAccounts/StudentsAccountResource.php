@@ -32,6 +32,8 @@ class StudentsAccountResource extends Resource
 
     protected static ?string $modelLabel = 'Akun Murid';
 
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $navigationLabel = 'Akun Murid';
 
     protected static ?string $recordTitleAttribute = 'name';
@@ -76,46 +78,46 @@ class StudentsAccountResource extends Resource
         ];
     }
 
-    public static function generateParentAccount(User $studentUser): ?User
+    public static function generateParentAccount(User $studentUser)
     {
-        $student = $studentUser->student;
-
-        if (!$student || $student->parent_user_id) {
+        // Cek apakah siswa sudah memiliki akun orang tua
+        if (!$studentUser->student || $studentUser->student->parent_user_id) {
             return null;
         }
 
-        // Generate username dari nama siswa
-        $parentUsername = strtolower(str_replace(' ', '', $student->nama_lengkap)) . '_ortu';
+        try {
+            // Generate username untuk orang tua
+            $studentName = $studentUser->student->nama_lengkap ?? $studentUser->name;
+            $studentNIS = $studentUser->username;
 
-        // Handle duplicate username
-        $counter = 1;
-        $originalUsername = $parentUsername;
-        while (User::where('username', $parentUsername)->exists()) {
-            $parentUsername = $originalUsername . $counter;
-            $counter++;
+            // Format: nama_siswa_ortu (lowercase, no spaces)
+            $parentUsername = strtolower(str_replace(' ', '', $studentName)) . '_ortu';
+
+            // Cek jika username sudah ada
+            $counter = 1;
+            $originalUsername = $parentUsername;
+
+            while (User::where('username', $parentUsername)->exists()) {
+                $parentUsername = $originalUsername . $counter;
+                $counter++;
+            }
+
+            // Buat user untuk orang tua
+            $parentUser = User::create([
+                'name' => "Orang Tua dari {$studentName}",
+                'username' => $parentUsername,
+                'email' => $parentUsername . '@ortu.sekolah.sch.id',
+                'password' => Hash::make($studentNIS), // Password = NIS anak
+                'role' => 'parent',
+            ]);
+
+            // Update student dengan parent_user_id
+            $studentUser->student()->update(['parent_user_id' => $parentUser->id]);
+
+            return $parentUser;
+        } catch (\Exception $e) {
+            return null;
         }
-
-        // Generate name for parent
-        $parentName = 'Orang Tua dari ' . $student->nama_lengkap;
-        if ($student->nama_ayah) {
-            $parentName = $student->nama_ayah;
-        }
-
-        // Buat user untuk orang tua
-        $parentUser = User::create([
-            'username' => $parentUsername,
-            'name' => $parentName,
-            'email' => $parentUsername . '@ortu.sch.id',
-            'password' => Hash::make($student->nis ?? $studentUser->username), // Password: NIS anak
-            'role' => 'parent',
-        ]);
-
-        // Update student dengan parent_user_id
-        $student->update([
-            'parent_user_id' => $parentUser->id,
-        ]);
-
-        return $parentUser;
     }
 
     // Handle form submission

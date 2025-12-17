@@ -18,4 +18,9 @@ class EditPaymentGuide extends EditRecord
             DeleteAction::make(),
         ];
     }
+
+    protected function getSavedNotificationTitle(): ?string
+    {
+        return "Data '{$this->record->name}' berhasil diperbarui";
+    }
 }

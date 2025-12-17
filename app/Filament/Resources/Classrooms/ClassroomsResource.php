@@ -26,6 +26,8 @@ class ClassroomsResource extends Resource
 
     protected static ?string $modelLabel = 'Kelas';
 
+    // protected static ?int $navigationSort = 1;
+
     protected static string|UnitEnum|null $navigationGroup = 'Akademik';
 
     protected static ?string $recordTitleAttribute = 'nama_kelas';

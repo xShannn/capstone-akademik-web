@@ -17,16 +17,8 @@ class EditTeacher extends EditRecord
         ];
     }
 
-    protected function getRedirectUrl(): string
+    protected function getSavedNotificationTitle(): ?string
     {
-        return static::getResource()::getUrl('index');
-    }
-
-    // custom pesan alert
-    protected function getSavedNotification(): ?\Filament\Notifications\Notification
-    {
-        return \Filament\Notifications\Notification::make()
-            ->title('Perubahan tersimpan')
-            ->success();
+        return "Data '{$this->record->name}' berhasil diperbarui";
     }
 }

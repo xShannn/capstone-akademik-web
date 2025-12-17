@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use Filament\Panel;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -94,5 +95,14 @@ class User extends Authenticatable implements FilamentUser
     public function getStudentDataAttribute()
     {
         return $this->student;
+    }
+
+    // Method untuk reset ke password default
+    public function resetToDefaultPassword()
+    {
+        $this->password = 'password123';
+        $this->save();
+
+        return $this;
     }
 }

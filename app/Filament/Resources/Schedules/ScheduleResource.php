@@ -2,20 +2,24 @@
 
 namespace App\Filament\Resources\Schedules;
 
-use App\Filament\Resources\Schedules\Pages\CreateSchedule;
-use App\Filament\Resources\Schedules\Pages\EditSchedule;
-use App\Filament\Resources\Schedules\Pages\ListSchedules;
-use App\Filament\Resources\Schedules\Pages\ViewSchedule;
-use App\Filament\Resources\Schedules\Schemas\ScheduleForm;
-use App\Filament\Resources\Schedules\Schemas\ScheduleInfolist;
-use App\Filament\Resources\Schedules\Tables\SchedulesTable;
-use App\Models\Schedule;
-use BackedEnum;
-use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Table;
 use UnitEnum;
+use BackedEnum;
+use App\Models\Schedule;
+use App\Models\SchoolYear;
+use Filament\Tables\Table;
+use Filament\Actions\Action;
+use Filament\Schemas\Schema;
+use Filament\Resources\Resource;
+use Filament\Actions\CreateAction;
+use Filament\Support\Icons\Heroicon;
+use Filament\Schemas\Components\Actions;
+use App\Filament\Resources\Schedules\Pages\EditSchedule;
+use App\Filament\Resources\Schedules\Pages\ViewSchedule;
+use App\Filament\Resources\Schedules\Pages\ListSchedules;
+use App\Filament\Resources\Schedules\Pages\CreateSchedule;
+use App\Filament\Resources\Schedules\Schemas\ScheduleForm;
+use App\Filament\Resources\Schedules\Tables\SchedulesTable;
+use App\Filament\Resources\Schedules\Schemas\ScheduleInfolist;
 
 class ScheduleResource extends Resource
 {
@@ -27,7 +31,7 @@ class ScheduleResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Akademik';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $recordTitleAttribute = 'subject';
 

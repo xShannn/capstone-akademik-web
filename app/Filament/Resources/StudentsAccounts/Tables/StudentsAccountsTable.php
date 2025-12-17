@@ -15,6 +15,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Notifications\Notification;
+use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Contracts\Database\Eloquent\Builder;
@@ -58,19 +59,29 @@ class StudentsAccountsTable
                         'Pindah' => 'danger',
                         default => 'gray',
                     })
-                    ->label('Status'),
+                    ->label('Status Siswa'),
 
-                TextColumn::make('student.parent_user_id')
+                BadgeColumn::make('has_parent_account')
                     ->label('Akun Ortu')
-                    ->formatStateUsing(fn($state): string => $state ? '✓' : '✗')
-                    ->badge()
-                    ->color(fn($state): string => $state ? 'success' : 'danger'),
+                    ->getStateUsing(
+                        fn(User $record): string =>
+                        $record->student && $record->student->parent_user_id ? 'Sudah' : 'Belum'
+                    )
+                    ->colors([
+                        'success' => 'Sudah',
+                        'danger' => 'Belum',
+                    ])
+                    ->icon(
+                        fn($state): string =>
+                        $state === 'Sudah' ?  'heroicon-o-check-circle' : 'heroicon-o-x-circle'
+                    ),
 
                 TextColumn::make('created_at')
                     ->dateTime('d/m/Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+
             ->filters([
                 SelectFilter::make('classroom')
                     ->relationship('student.classroom', 'nama_kelas')
@@ -81,23 +92,25 @@ class StudentsAccountsTable
                     ->relationship('student', 'status_aktif')
                     ->label('Status Siswa'),
 
-                TernaryFilter::make('has_parent_account')
-                    ->label('Memiliki Akun Ortu')
+                TernaryFilter::make('parent_account')
+                    ->label('Status Akun Ortu')
                     ->placeholder('Semua')
-                    ->trueLabel('Sudah ada akun ortu')
-                    ->falseLabel('Belum ada akun ortu')
+                    ->trueLabel('Sudah ada')
+                    ->falseLabel('Belum ada')
                     ->queries(
                         true: fn($query) => $query->whereHas('student', fn($q) => $q->whereNotNull('parent_user_id')),
                         false: fn($query) => $query->whereHas('student', fn($q) => $q->whereNull('parent_user_id')),
                     ),
             ])
+
             ->actions([
                 // Generate parent account
                 Action::make('generateParent')
                     ->icon('heroicon-o-user-plus')
                     ->color('success')
-                    ->label('Generate Akun Ortu')
+                    ->label('Buat Akun Ortu')
                     ->action(function (User $record) {
+                        // Panggil fungsi generateParentAccount dari Resource
                         $result = \App\Filament\Resources\StudentsAccounts\StudentsAccountResource::generateParentAccount($record);
 
                         if ($result) {
@@ -119,9 +132,9 @@ class StudentsAccountsTable
                         $record->student && !$record->student->parent_user_id
                     )
                     ->requiresConfirmation()
-                    ->modalHeading('Generate Akun Orang Tua')
+                    ->modalHeading('Buat Akun Orang Tua')
                     ->modalDescription('Apakah Anda yakin ingin membuat akun orang tua untuk siswa ini?')
-                    ->modalSubmitActionLabel('Generate'),
+                    ->modalSubmitActionLabel('Buat Akun'),
 
                 // View parent account
                 Action::make('viewParent')
@@ -164,14 +177,57 @@ class StudentsAccountsTable
                     ->modalDescription('Password akan direset ke: password123')
                     ->modalSubmitActionLabel('Reset'),
             ])
+
             ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    // Bulk generate parent accounts
+                    BulkAction::make('bulkGenerateParent')
+                        ->icon('heroicon-o-user-group')
+                        ->color('success')
+                        ->label('Buat Akun Ortu (Bulk)')
+                        ->action(function ($records) {
+                            $successCount = 0;
+                            $alreadyHasCount = 0;
+                            $failedCount = 0;
 
+                            foreach ($records as $record) {
+                                try {
+                                    // Skip jika siswa tidak ada atau sudah punya akun ortu
+                                    if (!$record->student || $record->student->parent_user_id) {
+                                        $alreadyHasCount++;
+                                        continue;
+                                    }
+
+                                    // Generate akun ortu
+                                    $result = \App\Filament\Resources\StudentsAccounts\StudentsAccountResource::generateParentAccount($record);
+
+                                    if ($result) {
+                                        $successCount++;
+                                    } else {
+                                        $failedCount++;
+                                    }
+                                } catch (\Exception $e) {
+                                    $failedCount++;
+                                }
+                            }
+
+                            Notification::make()
+                                ->title('Proses Selesai')
+                                ->success()
+                                ->body("Berhasil: {$successCount}\nSudah ada: {$alreadyHasCount}\nGagal: {$failedCount}")
+                                ->send();
+                        })
+                        ->requiresConfirmation()
+                        ->modalHeading('Buat Akun Orang Tua Massal')
+                        ->modalDescription('Membuat akun orang tua untuk siswa yang belum memiliki')
+                        ->modalSubmitActionLabel('Proses')
+                        ->deselectRecordsAfterCompletion(),
+
+                    // Bulk reset password
                     BulkAction::make('resetPassword')
                         ->icon('heroicon-o-key')
                         ->color('warning')
-                        ->label('Reset Password')
+                        ->label('Reset Password (Bulk)')
                         ->action(function ($records) {
                             foreach ($records as $record) {
                                 $record->update([
@@ -189,11 +245,55 @@ class StudentsAccountsTable
                         ->modalHeading('Reset Password (Bulk)')
                         ->modalDescription('Password akan direset ke: password123 untuk semua akun terpilih')
                         ->modalSubmitActionLabel('Reset'),
+
+                    DeleteBulkAction::make(),
                 ]),
             ])
+
             ->emptyStateActions([
                 CreateAction::make()
                     ->label('Tambah Akun Siswa'),
+            ])
+
+            ->headerActions([
+                // Header action untuk generate akun ortu untuk semua siswa yang belum punya
+                Action::make('generateAllParentAccounts')
+                    ->label('Generate Semua Akun Ortu')
+                    ->icon('heroicon-o-user-group')
+                    ->color('primary')
+                    ->action(function () {
+                        $studentsWithoutParent = User::where('role', 'student')
+                            ->whereHas('student', function ($query) {
+                                $query->whereNull('parent_user_id');
+                            })
+                            ->get();
+
+                        $successCount = 0;
+                        $failedCount = 0;
+
+                        foreach ($studentsWithoutParent as $studentUser) {
+                            try {
+                                $result = \App\Filament\Resources\StudentsAccounts\StudentsAccountResource::generateParentAccount($studentUser);
+                                if ($result) {
+                                    $successCount++;
+                                } else {
+                                    $failedCount++;
+                                }
+                            } catch (\Exception $e) {
+                                $failedCount++;
+                            }
+                        }
+
+                        Notification::make()
+                            ->title('Proses Generate Selesai')
+                            ->success()
+                            ->body("Berhasil dibuat: {$successCount} akun orang tua\nGagal: {$failedCount}")
+                            ->send();
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading('Generate Semua Akun Orang Tua')
+                    ->modalDescription('Membuat akun orang tua untuk SEMUA siswa yang belum memiliki')
+                    ->modalSubmitActionLabel('Generate Semua'),
             ]);
     }
 }

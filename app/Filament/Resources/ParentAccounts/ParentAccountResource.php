@@ -28,6 +28,7 @@ class ParentAccountResource extends Resource
     protected static ?string $navigationLabel = 'Akun Orang Tua';
 
     protected static ?string $modelLabel = 'Akun Orang Tua';
+    protected static ?int $navigationSort = 3;
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {

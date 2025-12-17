@@ -19,7 +19,6 @@ class TeachersAccountsTable
     public static function configure(Table $table): Table
     {
         return $table
-
             ->columns([
                 TextColumn::make('username')
                     ->searchable()
@@ -63,7 +62,7 @@ class TeachersAccountsTable
                     ->url(
                         fn(User $record): string =>
                         $record->teacher
-                            ? route('filament.admin.resources.teachers.view', $record->teacher->id)
+                            ? route('filament.admin.resources.teachers.index', $record->teacher->id)
                             : '#'
                     ),
                 ViewAction::make(),

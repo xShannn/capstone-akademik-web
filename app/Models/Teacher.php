@@ -59,4 +59,9 @@ class Teacher extends Model
     {
         return $this->hasOne(Classroom::class, 'guru_olahraga_id');
     }
+
+    public function userAccount()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
