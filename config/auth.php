@@ -36,8 +36,14 @@ return [
     */
 
     'guards' => [
+        // Filament admin
         'web' => [
             'driver' => 'session',
+            'provider' => 'users',
+        ],
+
+        'sanctum' => [
+            'driver' => 'sanctum',
             'provider' => 'users',
         ],
     ],
